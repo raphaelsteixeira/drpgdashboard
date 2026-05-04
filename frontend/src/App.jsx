@@ -3,8 +3,46 @@ import axios from 'axios'
 import { Shield, RefreshCw, AlertCircle, Globe, Layers } from 'lucide-react'
 import DRPGCard from './components/DRPGCard'
 import Spinner from './components/Spinner'
+import PasswordGate from './components/PasswordGate'
+
+const TOKEN_KEY = 'drpg_token'
+
+function setAxiosToken(token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
 
 export default function App() {
+  const [token, setToken] = useState(() => {
+    const t = sessionStorage.getItem(TOKEN_KEY)
+    if (t) setAxiosToken(t)
+    return t
+  })
+
+  const handleAuth = (t) => {
+    sessionStorage.setItem(TOKEN_KEY, t)
+    setAxiosToken(t)
+    setToken(t)
+  }
+
+  const handleLogout = () => {
+    sessionStorage.removeItem(TOKEN_KEY)
+    delete axios.defaults.headers.common['Authorization']
+    setToken(null)
+  }
+
+  // Redirect to password gate on 401 (e.g. backend restarted, token lost)
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (res) => res,
+      (err) => {
+        if (err.response?.status === 401) handleLogout()
+        return Promise.reject(err)
+      }
+    )
+    return () => axios.interceptors.response.eject(interceptor)
+  }, [])
+
+  if (!token) return <PasswordGate onAuth={handleAuth} />
 
   const [regions, setRegions] = useState([])
   const [compartments, setCompartments] = useState([])
