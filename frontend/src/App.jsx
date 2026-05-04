@@ -3,8 +3,29 @@ import axios from 'axios'
 import { Shield, RefreshCw, AlertCircle, Globe, Layers } from 'lucide-react'
 import DRPGCard from './components/DRPGCard'
 import Spinner from './components/Spinner'
+import PasswordGate from './components/PasswordGate'
+
+const TOKEN_KEY = 'drpg_token'
+
+function setAxiosToken(token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
 
 export default function App() {
+  const [token, setToken] = useState(() => {
+    const t = sessionStorage.getItem(TOKEN_KEY)
+    if (t) setAxiosToken(t)
+    return t
+  })
+
+  const handleAuth = (t) => {
+    sessionStorage.setItem(TOKEN_KEY, t)
+    setAxiosToken(t)
+    setToken(t)
+  }
+
+  if (!token) return <PasswordGate onAuth={handleAuth} />
+
   const [regions, setRegions] = useState([])
   const [compartments, setCompartments] = useState([])
   const [selectedRegion, setSelectedRegion] = useState('')
