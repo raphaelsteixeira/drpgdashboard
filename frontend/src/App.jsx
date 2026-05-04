@@ -24,6 +24,24 @@ export default function App() {
     setToken(t)
   }
 
+  const handleLogout = () => {
+    sessionStorage.removeItem(TOKEN_KEY)
+    delete axios.defaults.headers.common['Authorization']
+    setToken(null)
+  }
+
+  // Clear stale token on 401
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (res) => res,
+      (err) => {
+        if (err.response?.status === 401) handleLogout()
+        return Promise.reject(err)
+      }
+    )
+    return () => axios.interceptors.response.eject(interceptor)
+  }, [])
+
   if (!token) return <PasswordGate onAuth={handleAuth} />
 
   const [regions, setRegions] = useState([])
