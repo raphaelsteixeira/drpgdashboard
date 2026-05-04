@@ -240,7 +240,7 @@ function ExecutionsView({ plan, onBack, onSelect }) {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
         {runSuccess && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
             <CheckCircle2 size={15} className="text-green-500 shrink-0" />
@@ -355,20 +355,20 @@ function PlansListView({ drpg, region, onClose, onSelectPlan }) {
 
   return (
     <>
-      <div className="flex items-center justify-between p-6 border-b border-gray-100">
+      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <FileText className="text-red-600" size={20} />
             DR Plans
           </h2>
-          <p className="text-sm text-gray-500 mt-0.5">{drpg.display_name}</p>
+          <p className="text-sm text-gray-500 mt-0.5 truncate max-w-[200px] sm:max-w-none">{drpg.display_name}</p>
         </div>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-lg hover:bg-gray-100">
           <X size={20} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         {loading && <div className="flex justify-center py-12"><Spinner /></div>}
         {error && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
         {!loading && !error && plans.length === 0 && (
@@ -415,14 +415,14 @@ export default function PlansModal({ drpg, region, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:p-4">
+      <div className="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-3xl h-[92vh] sm:max-h-[85vh] flex flex-col">
 
         {view === 'plans' && (
           <>
             <PlansListView drpg={drpg} region={region} onClose={onClose} onSelectPlan={handleSelectPlan} />
             <div className="p-4 border-t border-gray-100 flex justify-end">
-              <button onClick={onClose} className="btn-secondary">Close</button>
+              <button onClick={onClose} className="btn-secondary w-full sm:w-auto">Close</button>
             </div>
           </>
         )}
@@ -430,11 +430,11 @@ export default function PlansModal({ drpg, region, onClose }) {
         {view === 'executions' && selectedPlan && (
           <>
             <ExecutionsView plan={selectedPlan} onBack={handleBack} onSelect={handleSelectExecution} />
-            <div className="p-4 border-t border-gray-100 flex justify-between">
-              <button onClick={handleBack} className="btn-secondary flex items-center gap-1.5">
+            <div className="p-4 border-t border-gray-100 flex justify-between gap-2">
+              <button onClick={handleBack} className="btn-secondary flex items-center gap-1.5 flex-1 sm:flex-none justify-center">
                 <ArrowLeft size={14} /> Back
               </button>
-              <button onClick={onClose} className="btn-secondary">Close</button>
+              <button onClick={onClose} className="btn-secondary flex-1 sm:flex-none">Close</button>
             </div>
           </>
         )}
@@ -446,11 +446,11 @@ export default function PlansModal({ drpg, region, onClose }) {
               region={selectedPlan.region}
               onBack={handleBack}
             />
-            <div className="p-4 border-t border-gray-100 flex justify-between">
-              <button onClick={handleBack} className="btn-secondary flex items-center gap-1.5">
+            <div className="p-4 border-t border-gray-100 flex justify-between gap-2">
+              <button onClick={handleBack} className="btn-secondary flex items-center gap-1.5 flex-1 sm:flex-none justify-center">
                 <ArrowLeft size={14} /> Back
               </button>
-              <button onClick={onClose} className="btn-secondary">Close</button>
+              <button onClick={onClose} className="btn-secondary flex-1 sm:flex-none">Close</button>
             </div>
           </>
         )}

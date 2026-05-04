@@ -121,27 +121,27 @@ export default function App() {
     <div className="min-h-screen bg-slate-100">
       {/* Top Bar */}
       <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-          <div className="bg-red-600 p-2 rounded-xl">
-            <Shield className="text-white" size={22} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
+          <div className="bg-red-600 p-2 rounded-xl shrink-0">
+            <Shield className="text-white" size={20} />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900 leading-tight">
-              OCI DR Protection Group Dashboard
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight truncate">
+              OCI DR Dashboard
             </h1>
-            <p className="text-xs text-gray-500">Oracle Cloud Infrastructure · Disaster Recovery</p>
+            <p className="text-xs text-gray-500 hidden sm:block">Oracle Cloud Infrastructure · Disaster Recovery</p>
           </div>
         </div>
       </header>
 
       {/* Filter Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="card p-5">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="card p-4 sm:p-5">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <Globe size={15} className="text-red-600" />
             Select Region &amp; Compartment
           </h2>
-          <div className="flex flex-col sm:flex-row gap-3 items-end">
+          <div className="flex flex-col gap-3">
             {/* Region Select */}
             <div className="flex-1">
               <label className="block text-xs font-medium text-gray-600 mb-1.5">
@@ -209,7 +209,7 @@ export default function App() {
             <button
               onClick={handleSearch}
               disabled={!canSearch}
-              className="btn-primary flex items-center gap-2 whitespace-nowrap h-10 px-5"
+              className="btn-primary flex items-center justify-center gap-2 h-10 px-5 w-full sm:w-auto"
             >
               {loadingDrpgs ? (
                 <>
@@ -228,7 +228,7 @@ export default function App() {
       </div>
 
       {/* Results */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12 sm:pb-12 pb-safe">
         {drpgError && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl flex items-start gap-3 mb-6">
             <AlertCircle size={18} className="shrink-0 mt-0.5" />
