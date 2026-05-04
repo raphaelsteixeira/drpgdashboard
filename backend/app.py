@@ -4,9 +4,6 @@ import oci
 import logging
 import time
 import re
-import os
-import secrets
-import functools
 from datetime import datetime, timezone, timedelta
 from dateutil import parser as date_parser
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -17,38 +14,6 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
-
-# ---------------------------------------------------------------------------
-# Auth
-# ---------------------------------------------------------------------------
-
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
-_valid_tokens: set[str] = set()
-
-
-def require_auth(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        if not APP_PASSWORD:
-            return f(*args, **kwargs)
-        auth = request.headers.get("Authorization", "")
-        token = auth.removeprefix("Bearer ").strip()
-        if token not in _valid_tokens:
-            return jsonify({"error": "Unauthorized"}), 401
-        return f(*args, **kwargs)
-    return wrapper
-
-
-@app.route("/api/auth", methods=["POST"])
-def auth():
-    if not APP_PASSWORD:
-        return jsonify({"token": "noauth"})
-    data = request.get_json(silent=True) or {}
-    if data.get("password") != APP_PASSWORD:
-        return jsonify({"error": "Invalid password"}), 401
-    token = secrets.token_hex(32)
-    _valid_tokens.add(token)
-    return jsonify({"token": token})
 
 
 # ---------------------------------------------------------------------------
@@ -821,7 +786,6 @@ def get_drpg_rto(drpg_id: str, region: str) -> dict:
 # ---------------------------------------------------------------------------
 
 @app.route("/api/regions", methods=["GET"])
-@require_auth
 def list_regions():
     """Return the list of OCI regions."""
     try:
@@ -838,7 +802,6 @@ def list_regions():
 
 
 @app.route("/api/compartments", methods=["GET"])
-@require_auth
 def list_compartments():
     """Return the list of compartments accessible to the user."""
     try:
@@ -875,7 +838,6 @@ def list_compartments():
 
 
 @app.route("/api/drpgs", methods=["GET"])
-@require_auth
 def list_drpgs():
     """List primary DR Protection Groups for a region and compartment."""
     region = request.args.get("region")
@@ -913,7 +875,6 @@ def list_drpgs():
 
 
 @app.route("/api/drpgs/<drpg_id>/plans", methods=["GET"])
-@require_auth
 def list_plans(drpg_id):
     """List DR plans for a DRPG, including standby peer plans."""
     region = request.args.get("region")
@@ -963,7 +924,6 @@ def list_plans(drpg_id):
 
 
 @app.route("/api/drpgs/<drpg_id>/members", methods=["GET"])
-@require_auth
 def list_members(drpg_id):
     """List members of a DRPG with their RPO info."""
     region = request.args.get("region")
@@ -1042,7 +1002,6 @@ def list_members(drpg_id):
 
 
 @app.route("/api/drpgs/<drpg_id>/rto", methods=["GET"])
-@require_auth
 def get_rto(drpg_id):
     """Get Last RTO for a DRPG based on last START_DRILL execution."""
     region = request.args.get("region")
@@ -1075,7 +1034,6 @@ def _execution_duration(time_started, time_ended):
 
 
 @app.route("/api/drpgs/<drpg_id>/executions", methods=["GET"])
-@require_auth
 def list_executions(drpg_id):
     """List plan executions for a DRPG, optionally filtered by plan_id."""
     region  = request.args.get("region")
@@ -1110,7 +1068,6 @@ def list_executions(drpg_id):
 
 
 @app.route("/api/executions/<execution_id>", methods=["GET"])
-@require_auth
 def get_execution_detail(execution_id):
     """Get detailed execution info including step-by-step breakdown."""
     region = request.args.get("region")
@@ -1179,7 +1136,6 @@ _PRECHECK_OPTIONS_CLASS = {
 
 
 @app.route("/api/plans/<plan_id>/precheck", methods=["POST"])
-@require_auth
 def run_precheck(plan_id):
     """Trigger a precheck execution for a DR plan."""
     body        = request.get_json(force=True) or {}
