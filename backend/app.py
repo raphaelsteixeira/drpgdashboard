@@ -6,6 +6,8 @@ import time
 import re
 import os
 import secrets
+import hmac
+import hashlib
 import functools
 from datetime import datetime, timezone, timedelta
 from dateutil import parser as date_parser
@@ -23,7 +25,12 @@ CORS(app)
 # ---------------------------------------------------------------------------
 
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
-_valid_tokens: set[str] = set()
+
+
+def _make_token() -> str:
+    """Derive a deterministic token from the password using HMAC-SHA256.
+    Any worker can verify it without shared state."""
+    return hmac.new(APP_PASSWORD.encode(), b"drpg-auth", hashlib.sha256).hexdigest()
 
 
 def require_auth(f):
@@ -33,7 +40,7 @@ def require_auth(f):
             return f(*args, **kwargs)
         auth = request.headers.get("Authorization", "")
         token = auth.removeprefix("Bearer ").strip()
-        if token not in _valid_tokens:
+        if not hmac.compare_digest(token, _make_token()):
             return jsonify({"error": "Unauthorized"}), 401
         return f(*args, **kwargs)
     return wrapper
@@ -46,9 +53,7 @@ def do_auth():
     data = request.get_json(silent=True) or {}
     if data.get("password") != APP_PASSWORD:
         return jsonify({"error": "Invalid password"}), 401
-    token = secrets.token_hex(32)
-    _valid_tokens.add(token)
-    return jsonify({"token": token})
+    return jsonify({"token": _make_token()})
 
 
 # ---------------------------------------------------------------------------
